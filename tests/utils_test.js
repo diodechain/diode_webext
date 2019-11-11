@@ -1,8 +1,8 @@
-const test = require('tape');
-const Utils = require('../src/background/Utils');
+const test = require('tape')
+const Utils = require('../src/background/Utils')
 
 test('Test utils module in background', (t) => {
-  let utils = new Utils();
+  const utils = new Utils()
 
   t.test('isNumber', (st) => {
     const tests = [{
@@ -29,12 +29,12 @@ test('Test utils module in background', (t) => {
     }, {
       src: -1.1,
       res: true
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.equal(utils.isNumber(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isNumber(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
   t.test('isString', (st) => {
     const tests = [{
@@ -58,12 +58,12 @@ test('Test utils module in background', (t) => {
     }, {
       src: 0,
       res: false
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.equal(utils.isString(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isString(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
   t.test('isHex', (st) => {
     const tests = [{
@@ -75,12 +75,12 @@ test('Test utils module in background', (t) => {
     }, {
       src: 'abCD',
       res: true
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.equal(utils.isHex(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isHex(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
   t.test('isDiodeAddress', (st) => {
     const tests = [{
@@ -92,12 +92,12 @@ test('Test utils module in background', (t) => {
     }, {
       src: '0808db74162847051c30084f316ef482954ec224',
       res: true
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.equal(utils.isDiodeAddress(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isDiodeAddress(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
   t.test('isDiodeURL', (st) => {
     const tests = [{
@@ -115,12 +115,12 @@ test('Test utils module in background', (t) => {
     }, {
       src: 'web3://0x0808db74162847051c30084f316ef482954ec224.diode.ws:8080/index',
       res: true
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.equal(utils.isDiodeURL(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isDiodeURL(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
   t.test('parseDiodeURL', (st) => {
     const tests = [{
@@ -158,12 +158,12 @@ test('Test utils module in background', (t) => {
         isWS: true,
         port: 8080
       }
-    }];
-    for (let i=0; i<tests.length; i++) {
-      st.deepEqual(utils.parseDiodeURL(tests[i].src), tests[i].res);
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.deepEqual(utils.parseDiodeURL(tests[i].src), tests[i].res)
     }
-    st.end();
-  });
+    st.end()
+  })
 
-  t.end();
-});
+  t.end()
+})

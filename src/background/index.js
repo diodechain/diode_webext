@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
-const Crypto = require('./Crypto');
-const DiodeProtocol = require('./DiodeProtocol');
-const Utils = require('./Utils');
+const Crypto = require('./Crypto')
+const DiodeProtocol = require('./DiodeProtocol')
+const Utils = require('./Utils')
 
-const crypto = new Crypto();
-const utils = new Utils();
-const protocol = new DiodeProtocol(utils);
+const crypto = new Crypto()
+const utils = new Utils()
+const protocol = new DiodeProtocol(utils)
 const defaultDiode = {
   nodes: [
     'seed-alpha.diode.io:41043',
@@ -17,11 +17,11 @@ const defaultDiode = {
   privKeyPath: ''
 }
 
-function initializePageAction(tab) {
+function initializePageAction (tab) {
   if (utils.isDiodeURL(tab.url)) {
-    browser.pageAction.setIcon({tabId: tab.id, path: "../icons/diode.png"});
-    browser.pageAction.setTitle({tabId: tab.id, title: 'diode connected'});
-    browser.pageAction.show(tab.id);
+    browser.pageAction.setIcon({ tabId: tab.id, path: '../icons/diode.png' })
+    browser.pageAction.setTitle({ tabId: tab.id, title: 'diode connected' })
+    browser.pageAction.show(tab.id)
   }
 }
 
@@ -35,33 +35,33 @@ function initializePageAction(tab) {
 // }
 // browser.pageAction.onClicked.addListener(handlePageActionClicked);
 
-function handleTabsUpdated(id, changeInfo, tab) {
-  initializePageAction(tab);
+function handleTabsUpdated (id, changeInfo, tab) {
+  initializePageAction(tab)
 }
-browser.tabs.onUpdated.addListener(handleTabsUpdated);
+browser.tabs.onUpdated.addListener(handleTabsUpdated)
 
 browser.storage.local.get()
   .then((storedSettings) => {
     if (!storedSettings.diode) {
-      browser.storage.local.set({ diode: defaultDiode });
+      browser.storage.local.set({ diode: defaultDiode })
     }
-  });
+  })
 
 browser.tabs.query({}).then((tabs) => {
-  for (let tab of tabs) {
-    initializePageAction(tab);
+  for (const tab of tabs) {
+    initializePageAction(tab)
   }
-});
+})
 
 browser.protocol.registerProtocol('web3', function (request) {
-  return protocol.handleRequest(request);
-});
+  return protocol.handleRequest(request)
+})
 
 window.addEventListener('beforeunload', () => {
-  crypto.destroy();
-});
+  crypto.destroy()
+})
 
-crypto.init();
+crypto.init()
 
-window.Crypto = crypto;
-window.Utils = utils;
+window.Crypto = crypto
+window.Utils = utils

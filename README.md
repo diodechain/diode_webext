@@ -1,5 +1,7 @@
 # diode_webext
 [![Build Status](https://travis-ci.org/diodechain/diode_webext.svg?branch=master)](https://travis-ci.org/diodechain/diode_webext)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
+
 Diode experimental webext plugin for Firefox.
 
 > Note: it's experimental to use web-ext api in Firefox.
