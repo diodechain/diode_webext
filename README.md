@@ -1,4 +1,5 @@
 # diode_webext
+[![Build Status](https://travis-ci.org/diodechain/diode_webext.svg?branch=master)](https://travis-ci.org/diodechain/diode_webext)
 Diode experimental webext plugin for Firefox.
 
 > Note: it's experimental to use web-ext api in Firefox.
