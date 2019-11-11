@@ -26,9 +26,16 @@ function initializePageAction (tab) {
 }
 
 // handle runtime message
-// function handleMessage(message, sender) {
-// }
-// browser.runtime.onMessage.addListener(handleMessage);
+async function handleMessage (message, sender) {
+  if (message === 'get.settings') {
+    const storedSettings = await browser.storage.local.get()
+    if (typeof storedSettings.diode !== 'undefined') {
+      return storedSettings.diode
+    }
+    return defaultDiode
+  }
+}
+browser.runtime.onMessage.addListener(handleMessage)
 
 // handle page action
 // async function handlePageActionClicked(tab) {
