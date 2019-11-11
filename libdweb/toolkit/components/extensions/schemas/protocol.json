@@ -1,0 +1,74 @@
+[
+  {
+    "namespace": "manifest",
+    "types": [
+      {
+        "$extend": "WebExtensionManifest",
+        "properties": {
+          "protocol": {
+            "type": "object",
+            "optional": true,
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "namespace": "protocol",
+    "description": "Network protocol handler API",
+    "manifest": ["protocol"],
+    "//permissions": ["protocol"],
+    "types": [
+      {
+        "id": "Request",
+        "type": "object",
+        "description": "An object passed to the protocol handler",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "requested url"
+          }
+        }
+      },
+      {
+        "id": "ProtocolHandler",
+        "type": "function",
+        "description": "Protocol handler",
+        "async": true,
+        "parameters": [
+          {
+            "name": "request",
+            "$ref": "Request"
+          }
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "name": "registerProtocol",
+        "type": "function",
+        "description": "regitruesters network protocol handler",
+        "async": true,
+        "parameters": [
+          {
+            "name": "scheme",
+            "type": "string",
+            "description":
+              "The protocol scheme that implementation will handle."
+          },
+          {
+            "name": "handler",
+            "$ref": "ProtocolHandler",
+            "type": "function",
+            "description": "Protocol handler for the registered protocol"
+          }
+        ]
+      }
+    ],
+    "properties": {},
+    "events": []
+  }
+]

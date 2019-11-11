@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../css/skeleton.css"/>
+    <style>
+      .text-success {
+        color: green;
+      }
+      .text-warning {
+        color: red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="diode-webext-option-msgbox" class="row hidden"></div>
+    <div class="row">
+      <label for="diode-nodes">Diode Nodes (<code>if you have multiple nodes, separate them with ;</code>):</label>
+      <input class="u-full-width" id="diode-nodes" type="text" value=""></input>
+
+      <label for="diode-cert">Cert Path:</label>
+      <input class="u-full-width"  id="diode-cert" type="text" value=""></input>
+
+      <label for="diode-privkey">Private Key Path:</label>
+      <input class="u-full-width"  id="diode-privkey" type="text" value=""></input>
+
+      <input id="diode-webext-option-button" class="button-primary" type="button" value="Save"></input>
+    </div>
+
+    <script src="options.js"></script>
+  </body>
+
+</html>

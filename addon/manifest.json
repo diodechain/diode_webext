@@ -1,0 +1,54 @@
+{
+  "manifest_version": 2,
+  "name": "diode webext",
+  "version": "0.0.1",
+  "author": "Peter Lai <peter@diode.io>",
+  "description": "Diode webext plugin for firefox.",
+  "homepage_url": "https://diode.io",
+  "permissions": [
+    "storage",
+    "tabs",
+    "<all_urls>",
+    "activeTab"
+  ],
+
+  "experiment_apis": {
+    "protocol": {
+      "schema": "../libdweb/toolkit/components/extensions/schemas/protocol.json",
+      "child": {
+        "scopes": ["addon_child"],
+        "paths": [["protocol"]],
+        "script": "../libdweb/toolkit/components/extensions/child/ext-protocol.js"
+      },
+      "parent": {
+        "events": ["startup"],
+        "scopes": ["addon_parent"],
+        "paths": [["protocol"]],
+        "script": "../libdweb/toolkit/components/extensions/parent/ext-protocol.js"
+      }
+    }
+  },
+
+  "icons": {
+    "48": "icons/diode.png",
+    "96": "icons/diode.png"
+  },
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+
+  "options_ui": {
+    "browser_style": false,
+    "page": "pages/options.html"
+  },
+
+  "page_action": {
+    "browser_style": false,
+    "default_icon": "icons/diode.png",
+    "default_title": "Diode",
+    "default_popup": "pages/popup.html"
+  }
+}
