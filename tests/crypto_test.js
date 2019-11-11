@@ -1,5 +1,5 @@
 const test = require('tape');
-const Crypto = require('../src/background/crypto');
+const Crypto = require('../src/background/Crypto');
 
 test('Test crypto module in background', async (t) => {
   let crypto = new Crypto();

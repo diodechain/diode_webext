@@ -1,3 +1,5 @@
+'use strict';
+
 class DiodeProtocol {
   constructor (utils) {
     this.utils = utils

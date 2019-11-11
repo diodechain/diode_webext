@@ -1,3 +1,5 @@
+'use strict';
+
 const Secp256k1 = require('js-secp256k1/dist/node-bundle');
 const KeccakTiny = require('js-keccak-tiny/dist/node-bundle');
 const Constants = require('./Constants');

@@ -1,5 +1,5 @@
 const test = require('tape');
-const Utils = require('../src/background/utils');
+const Utils = require('../src/background/Utils');
 
 test('Test utils module in background', (t) => {
   let utils = new Utils();
