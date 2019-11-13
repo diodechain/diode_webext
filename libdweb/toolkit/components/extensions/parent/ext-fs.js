@@ -339,6 +339,68 @@ class HostFileSystem /*::implements FileSystemManager*/ {
       })
     })
   }
+  async requestVolumeWithDirectory(
+    options, /*:MountOptions*/
+  ) {
+    const { name, iconURL, volumes } = await this.state
+
+    const rights = []
+    let directory = ''
+    if (options.read != false) {
+      rights.push("read")
+    }
+    if (options.write === true) {
+      rights.push("write")
+    }
+    if (options.watch === true) {
+      rights.push("watch")
+    }
+    if (options.url) {
+      directory = options.url
+    }
+    const access = rights.join(", ")
+
+    debug && console.log("!!!!!!!!!!!!", this, directory)
+
+    const { grant } = await this.promptUser({
+      id: "libdweb-fs-popup",
+      message: `${name} is requesting permission to ${access} files in a ${directory}`,
+      persistence: false,
+      popupIconURL: iconURL,
+      actions: [
+        {
+          label: "Give read permission",
+          accessKey: "C",
+          grant: true
+        },
+        {
+          label: "Deny permission",
+          accessKey: "D",
+          grant: false
+        }
+      ]
+    })
+
+    if (grant) {
+      if (!directory) {
+        throw new ExtensionError("Cannot access the directory")
+      }
+      const permissions = rights.map(flag => `${flag}+${directory}`)
+      await this.addPermissions(permissions)
+
+      const volume = FSVolume.new(
+        directory,
+        options.read != false,
+        options.write === true,
+        options.watch === true
+      )
+      console.log('Given access: ' + directory)
+      volumes[directory] = volume
+      return volume
+    } else {
+      throw new ExtensionError("User denied directory access")
+    }
+  }
   async requestVolume(options /*:MountOptions*/) {
     const { name, iconURL, volumes } = await this.state
 
@@ -476,6 +538,12 @@ class HostFileSystem /*::implements FileSystemManager*/ {
 
       debug && console.log("Granted permissions", available, volumes)
       if (available == null) {
+        debug && console.log("Request permissions", url)
+        const volume = await this.requestVolumeWithDirectory(options)
+        if (volume) {
+          debug && console.log("Host.mount <<<", volume)
+          return volume
+        }
         throw new ExtensionError(
           "Access to the requested directory was not granted."
         )
