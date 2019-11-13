@@ -7,14 +7,28 @@ const Utils = require('./Utils')
 const crypto = new Crypto()
 const utils = new Utils()
 const protocol = new DiodeProtocol(utils)
-const defaultDiode = {
+let diodeSettings = {
   nodes: [
     'seed-alpha.diode.io:41043',
     'seed-beta.diode.io:41043',
     'seed-gamma.diode.io:41043'
   ],
-  certPath: '',
-  privKeyPath: ''
+  certPath: {
+    path: '',
+    requested: false,
+    fileData: ''
+  },
+  privKeyPath: {
+    path: '',
+    requested: false,
+    fileData: ''
+  },
+  requestedDirs: []
+}
+const filePermissions = {
+  read: true,
+  write: false,
+  watch: false
 }
 
 function initializePageAction (tab) {
@@ -32,7 +46,30 @@ async function handleMessage (message, sender) {
     if (typeof storedSettings.diode !== 'undefined') {
       return storedSettings.diode
     }
-    return defaultDiode
+    return diodeSettings
+  } else if (message === 'read.setting.files') {
+    const storedSettings = await browser.storage.local.get()
+    if (typeof storedSettings.diode !== 'undefined') {
+      const { FileSystem } = browser
+      const decoder = new TextDecoder('utf8')
+      diodeSettings = storedSettings.diode
+      // read cert
+      const certDir = utils.dirname(diodeSettings.certPath.path)
+      if (diodeSettings.requestedDirs.indexOf(certDir) < 0) {
+        const certVolume = await FileSystem.mount(Object.assign(filePermissions, { url: certDir }))
+        diodeSettings.requestedDirs.push(certDir)
+      }
+      const certData = await FileSystem.readFile(diodeSettings.certPath.path)
+      console.log('cert', decoder.decode(new Uint8Array(certData)))
+      // read privkey
+      const privKeyDir = utils.dirname(diodeSettings.privKeyPath.path)
+      if (diodeSettings.requestedDirs.indexOf(privKeyDir) < 0) {
+        const privKeyVolume = await FileSystem.mount(Object.assign(filePermissions, { url: privKeyDir }))
+        diodeSettings.requestedDirs.push(privKeyDir)
+      }
+      const privKeyData = await FileSystem.readFile(diodeSettings.certPath.path)
+      console.log('privkey', decoder.decode(new Uint8Array(privKeyData)))
+    }
   }
 }
 browser.runtime.onMessage.addListener(handleMessage)
@@ -50,7 +87,7 @@ browser.tabs.onUpdated.addListener(handleTabsUpdated)
 browser.storage.local.get()
   .then((storedSettings) => {
     if (!storedSettings.diode) {
-      browser.storage.local.set({ diode: defaultDiode })
+      browser.storage.local.set({ diode: diodeSettings })
     }
   })
 

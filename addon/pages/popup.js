@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 // (async () => {
 //   let { Crypto, Utils } = browser.extension.getBackgroundPage();

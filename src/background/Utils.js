@@ -1,11 +1,15 @@
 'use strict'
 
+const path = require('path')
+
 // TODO: Add address checksum
+// TODO: validate different os file path?
 class Utils {
   constructor () {
     this.hexPattern = /^(0x)?[0-9a-fA-F]+/
     this.diodeAddressPattern = /^(0x)?[0-9a-fA-F]{40}/
     this.diodeURLPattern = /^web3:\/\/([rws]{1,3}.)?(0x[0-9a-fA-F]{40}).diode(.ws)?(:[\d]{0,5})?/
+    this.filePathPattern = /^file:\/\/[\w/]+/
   }
 
   isNumber (src) {
@@ -72,6 +76,17 @@ class Utils {
       }
     }
     return res
+  }
+
+  isValidFilePath (src) {
+    if (!this.isString(src)) {
+      return false
+    }
+    return this.filePathPattern.test(src)
+  }
+
+  dirname (src) {
+    return path.dirname(src)
   }
 }
 

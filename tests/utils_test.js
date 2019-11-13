@@ -165,5 +165,45 @@ test('Test utils module in background', (t) => {
     st.end()
   })
 
+  t.test('isValidFilePath', (st) => {
+    const tests = [{
+      src: 'file:/Users/guest/test.txt',
+      res: false
+    }, {
+      src: 'file:/Users/guest',
+      res: false
+    }, {
+      src: 'file:///Users/guest/test.txt',
+      res: true
+    }, {
+      src: 'file:///Users/guest',
+      res: true
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isValidFilePath(tests[i].src), tests[i].res)
+    }
+    st.end()
+  })
+
+  t.test('dirname', (st) => {
+    const tests = [{
+      src: 'file://Users/guest/test.txt',
+      res: 'file://Users/guest'
+    }, {
+      src: 'file://Users/guest',
+      res: 'file://Users'
+    }, {
+      src: 'file:///Users/guest/test.txt',
+      res: 'file:///Users/guest'
+    }, {
+      src: 'file:///Users/guest',
+      res: 'file:///Users'
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.dirname(tests[i].src), tests[i].res)
+    }
+    st.end()
+  })
+
   t.end()
 })
