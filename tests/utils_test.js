@@ -65,6 +65,38 @@ test('Test utils module in background', (t) => {
     st.end()
   })
 
+  t.test('isObject', (st) => {
+    const tests = [{
+      src: '',
+      res: false
+    }, {
+      src: 0,
+      res: false
+    }, {
+      src: {},
+      res: true
+    }, {
+      src: null,
+      res: false
+    }, {
+      src: undefined,
+      res: false
+    }, {
+      src: false,
+      res: false
+    }, {
+      src: () => {},
+      res: false
+    }, {
+      src: [],
+      res: false
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isObject(tests[i].src), tests[i].res)
+    }
+    st.end()
+  })
+
   t.test('isHex', (st) => {
     const tests = [{
       src: 'gg',
