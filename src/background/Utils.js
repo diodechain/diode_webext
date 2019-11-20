@@ -10,6 +10,9 @@ class Utils {
     this.diodeAddressPattern = /^(0x)?[0-9a-fA-F]{40}/
     this.diodeURLPattern = /^web3:\/\/([rws]{1,3}.)?(0x[0-9a-fA-F]{40}).diode(.ws)?(:[\d]{0,5})?/
     this.filePathPattern = /^file:\/\/[\w/]+/
+    // this.uriPattern = /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/
+    this.uriPattern = /^([\w]+:\/\/)?(.+):([\d]{0,5})$/
+    this.separator = ';'
   }
 
   isNumber (src) {
@@ -93,6 +96,19 @@ class Utils {
       return false
     }
     return this.filePathPattern.test(src)
+  }
+
+  isValidNodeURL (src) {
+    if (!this.isString(src)) {
+      return false
+    }
+    const splitted = this.uriPattern.exec(src)
+    if (!this.isArray(splitted)) {
+      return false
+    }
+    const authority = splitted[2]
+    const port = splitted[3]
+    return this.isString(authority) && this.isString(port)
   }
 
   dirname (src) {

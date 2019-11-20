@@ -249,6 +249,26 @@ test('Test utils module in background', (t) => {
     st.end()
   })
 
+  t.test('isValidNodeURL', (st) => {
+    const tests = [{
+      src: 'tcp://diode.io:41043/',
+      res: false
+    }, {
+      src: 'tcp://diode.io:41043/?q=1',
+      res: false
+    }, {
+      src: 'tcp://diode.io:41043/#r',
+      res: false
+    }, {
+      src: 'diode.io:41043',
+      res: true
+    }]
+    for (let i = 0; i < tests.length; i++) {
+      st.equal(utils.isValidNodeURL(tests[i].src), tests[i].res)
+    }
+    st.end()
+  })
+
   t.test('dirname', (st) => {
     const tests = [{
       src: 'file://Users/guest/test.txt',
