@@ -27,6 +27,11 @@ class Utils {
     return (srcType === 'object') && (src !== null) && (src.constructor.name === 'Object')
   }
 
+  isArray (src) {
+    const srcType = typeof src
+    return (srcType === 'object') && (src !== null) && (src.constructor.name === 'Array')
+  }
+
   isHex (src) {
     if (!this.isString(src)) {
       return false
