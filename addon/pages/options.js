@@ -1,19 +1,23 @@
 const diodeNodesInput = document.querySelector('#diode-nodes')
-const diodeCertInput = document.querySelector('#diode-cert')
-const diodePrivKeyInput = document.querySelector('#diode-privkey')
 const diodeWebextBtn = document.querySelector('#diode-webext-option-button')
 const msgBox = document.querySelector('#diode-webext-option-msgbox')
 const { Utils } = browser.extension.getBackgroundPage()
 let diodeSettings = {}
 
 function readSettings () {
-  return browser.runtime.sendMessage('get.settings')
+  return browser.runtime.sendMessage({
+    cmd: 'get.settings'
+  })
 }
 
 async function storeSettings () {
   if (diodeSettings.dirty === true) {
-    return browser.storage.local.set({
-      diode: diodeSettings
+    const settings = {
+      nodes: diodeSettings.nodes
+    }
+    return browser.runtime.sendMessage({
+      cmd: 'set.settings',
+      settings
     })
   }
   throw new Error('Nothing had updated')
@@ -23,8 +27,6 @@ function handleClick () {
   storeSettings()
     .then(() => {
       updateMsg('Update settings successfully!', false)
-      // read file
-      return browser.runtime.sendMessage('read.setting.files')
     })
     .catch((err) => {
       console.warn(err)
@@ -32,30 +34,17 @@ function handleClick () {
     })
 }
 
-function handleCertChange (e) {
-  const path = e.target.value
-  if (Utils.isValidFilePath(path)) {
-    const { certPath } = diodeSettings
-    if (certPath.path !== path) {
-      certPath.path = path
-      diodeSettings.certPath = certPath
-      diodeSettings.dirty = true
+function handleNodesChange (e) {
+  const snodes = e.target.value
+  const nodes = snodes.split(Utils.separator)
+  for (let i = 0; i < nodes.length; i++) {
+    if (!Utils.isValidNodeURL(nodes[i])) {
+      updateMsg('Invalid node url!', true)
+      return
     }
-    console.log(path, Utils.dirname(path))
   }
-}
-
-function handlePrivKeyChange (e) {
-  const path = e.target.value
-  if (Utils.isValidFilePath(path)) {
-    const { privKeyPath } = diodeSettings
-    if (privKeyPath.path !== path) {
-      privKeyPath.path = path
-      diodeSettings.privKeyPath = privKeyPath
-      diodeSettings.dirty = true
-    }
-    console.log(path, Utils.dirname(path))
-  }
+  diodeSettings.nodes = nodes
+  diodeSettings.dirty = true
 }
 
 function updateMsg (msg, isError) {
@@ -74,9 +63,7 @@ function updateMsg (msg, isError) {
 function updateUI (settings) {
   diodeSettings = settings
   diodeSettings.dirty = false
-  diodeNodesInput.value = settings.nodes.join(';')
-  diodeCertInput.value = settings.certPath.path
-  diodePrivKeyInput.value = settings.privKeyPath.path
+  diodeNodesInput.value = settings.nodes.join(Utils.separator)
 }
 
 function onError (e) {
@@ -87,6 +74,5 @@ readSettings()
   .then(updateUI)
   .catch(onError)
 
-diodeCertInput.addEventListener('change', handleCertChange)
-diodePrivKeyInput.addEventListener('change', handlePrivKeyChange)
+diodeNodesInput.addEventListener('change', handleNodesChange)
 diodeWebextBtn.addEventListener('click', handleClick)

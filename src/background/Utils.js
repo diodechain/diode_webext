@@ -35,6 +35,11 @@ class Utils {
     return (srcType === 'object') && (src !== null) && (src.constructor.name === 'Array')
   }
 
+  isWallet (src) {
+    const srcType = typeof src
+    return (srcType === 'object') && (src !== null) && (src.constructor.name === 'Wallet')
+  }
+
   isHex (src) {
     if (!this.isString(src)) {
       return false
@@ -72,20 +77,24 @@ class Utils {
     if (!parsed) {
       return false
     }
-    if (this.isString(parsed[1])) {
-      if (parsed[1].length > 1) {
-        res.mode = parsed[1].substr(0, parsed[1].length - 1)
+    const mode = parsed[1]
+    const address = parsed[2]
+    const ws = parsed[3]
+    const port = parsed[4]
+    if (this.isString(mode)) {
+      if (mode.length > 1) {
+        res.mode = mode.substr(0, mode.length - 1)
       }
     }
-    if (this.isString(parsed[2])) {
-      res.address = parsed[2]
+    if (this.isString(address)) {
+      res.address = address
     }
-    if (this.isString(parsed[3])) {
+    if (this.isString(ws)) {
       res.isWS = true
     }
-    if (this.isString(parsed[4])) {
-      if (parsed[4].length > 1) {
-        res.port = parseInt(parsed[4].substr(1))
+    if (this.isString(port)) {
+      if (port.length > 1) {
+        res.port = parseInt(port.substr(1))
       }
     }
     return res
