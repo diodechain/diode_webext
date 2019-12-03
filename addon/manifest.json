@@ -13,17 +13,29 @@
   ],
 
   "experiment_apis": {
-    "FileSystem": {
-      "schema": "../libdweb/toolkit/components/extensions/schemas/fs.json",
-      "child": {
-        "scopes": ["addon_child"],
-        "paths": [["FileSystem"]],
-        "script": "../libdweb/toolkit/components/extensions/child/ext-fs.js"
-      },
+    "TCPSocket": {
+      "schema": "../libdweb/toolkit/components/extensions/schemas/tcp.json",
       "parent": {
-        "scopes": ["addon_parent"],
-        "paths": [["FileSystem"]],
-        "script": "../libdweb/toolkit/components/extensions/parent/ext-fs.js"
+        "scopes": [
+          "addon_parent"
+        ],
+        "paths": [
+          [
+            "TCPSocket"
+          ]
+        ],
+        "script": "../libdweb/toolkit/components/extensions/parent/ext-tcp.js"
+      },
+      "child": {
+        "scopes": [
+          "addon_child"
+        ],
+        "paths": [
+          [
+            "TCPSocket"
+          ]
+        ],
+        "script": "../libdweb/toolkit/components/extensions/child/ext-tcp.js"
       }
     },
     "protocol": {

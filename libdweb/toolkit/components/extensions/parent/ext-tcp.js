@@ -235,18 +235,26 @@ Cu.importGlobalProperties(["URL"])
                   useSecureTransport: options.useSecureTransport,
                   binaryType: "arraybuffer"
                 })
+                // TODO: check whether TCPSocketAdapter is working
+                // const socket = new TCPSocketAdapter(options.host, options.port, {
+                //   useSecureTransport: true,
+                //   binaryType: "arraybuffer"
+                // })
 
                 const client = serialiseSocket(socket, ++connectionIdx)
                 clients.set(client.id, socket)
 
                 socket.onopen = () => {
+                  console.log('Open')
                   emit(["open", serialiseSocket(socket, client.id)])
                 }
                 socket.onclose = () => {
+                  console.log('Closed')
                   emit(["close", serialiseSocket(socket, client.id)])
                   clients.delete(client.id)
                 }
                 socket.ondata = event => {
+                  console.log('Data')
                   emit(["data", serialiseSocket(socket, client.id), event.data])
                 }
                 resolve(client)
@@ -337,6 +345,51 @@ Cu.importGlobalProperties(["URL"])
             })
           }
         }
+      }
+    }
+  }
+
+  class TransportSecurityInfo /*::implements nsITransportSecurityInfo*/ {
+    /*::
+    securityState:nsWebProgressState
+    shortSecurityDescription:string
+    errorCode:nsresult
+    errorMessage:string
+    SSLStatus:*
+    state:string
+    */
+    constructor() {
+      this.state = "secure"
+      this.securityState = Ci.nsIWebProgressListener.STATE_IS_SECURE
+      this.errorCode = Cr.NS_OK
+      this.shortSecurityDescription = "Content Addressed"
+      this.SSLStatus = {
+        cipherSuite: "TLS_ECDH_ECDSA_WITH_AES_128_GCM_SHA256",
+        // TLS_VERSION_1_2
+        protocolVersion: 3,
+        isDomainMismatch: false,
+        isNotValidAtThisTime: true,
+        serverCert: {
+          subjectName: "Content Addressing",
+          displayName: "Content Addressing",
+          certType: Ci.nsIX509Cert.CA_CERT,
+          isSelfSigned: true,
+          validity: {}
+        }
+      }
+    }
+    QueryInterface(iid) {
+      const isSupported =
+        false ||
+        iid.equals(Ci.nsISupports) ||
+        iid.equals(Ci.nsITransportSecurityInfo) ||
+        iid.equals(Ci.nsISSLStatusProvider)
+      if (isSupported) {
+        console.log('This is supported!!!!#####')
+        console.log(this)
+        return this
+      } else {
+        throw Cr.NS_ERROR_NO_INTERFACE
       }
     }
   }
@@ -480,13 +533,16 @@ Cu.importGlobalProperties(["URL"])
       this.waitingForStartTLS = false
       this.pendingData = []
       this.pendingDataAfterStartTLS = []
-      this.binaryType = "arraybuffer"
+      this.binaryType = options && options.binaryType ? options.binaryType : "arraybuffer"
       this.copyObserver = new CopierObserver(this)
+      // this.securityInfo = new TransportSecurityInfo()
+      // console.log(this.securityInfo.QueryInterface(Ci.nsITransportSecurityInfo))
 
       if (options !== DO_NOT_INIT) {
         TCPSocketAdapter.init(this)
       }
     }
+
     static createAcceptedSocket(transport /*:nsISocketTransport*/) {
       const self = new TCPSocketAdapter(
         transport.host,
@@ -501,27 +557,7 @@ Cu.importGlobalProperties(["URL"])
 
       return self
     }
-    static init(self) {
-      self.readyState = "connecting"
-      const transportService = Cc[
-        "@mozilla.org/network/socket-transport-service;1"
-      ].getService(Ci.nsISocketTransportService)
-      const socketTypes = self.ssl ? ["ssl"] : ["starttls"]
-      const transport = transportService.createTransport(
-        socketTypes,
-        1,
-        self.host,
-        self.port,
-        null
-      )
-      TCPSocketAdapter.initWithUnconnectedTransport(self, transport)
-    }
-    static initWithUnconnectedTransport(self, transport) {
-      self.readyState = "connecting"
-      self.transport = transport
-      transport.setEventSink(self, null)
-      TCPSocketAdapter.createStream(self)
-    }
+
     static createStream(self) {
       const { transport } = self
       const socketInputStream = transport.openInputStream(0, 0, 0)
@@ -549,6 +585,7 @@ Cu.importGlobalProperties(["URL"])
       self.socketInputStream = socketInputStream
       self.socketOutputStream = socketOutputStream
     }
+
     static createInputStreamPump(self) {
       const { socketInputStream } = self
       if (!socketInputStream) {
@@ -564,6 +601,31 @@ Cu.importGlobalProperties(["URL"])
       }
       inputStreamPump.asyncRead(self, null)
     }
+
+    static initWithUnconnectedTransport(self, transport) {
+      self.readyState = "connecting"
+      self.transport = transport
+      // TODO: check the crash problem
+      // CPP: nsCOMPtr<nsIEventTarget> mainTarget = GetMainThreadEventTarget();
+      // transport.setEventSink(self, null)
+      TCPSocketAdapter.createStream(self)
+    }
+
+    static init(self) {
+      self.readyState = "connecting"
+      const transportService = Cc[
+        "@mozilla.org/network/socket-transport-service;1"
+      ].getService(Ci.nsISocketTransportService)
+      const socketTypes = self.ssl ? ["ssl"] : ["starttls"]
+      const transport = transportService.createTransport(
+        socketTypes,
+        self.host,
+        self.port,
+        null
+      )
+      TCPSocketAdapter.initWithUnconnectedTransport(self, transport)
+    }
+
     static maybeReportErrorAndCloseIfOpen(self, status) {
       if (self.readyState === "closed") {
         return undefined
@@ -673,12 +735,14 @@ Cu.importGlobalProperties(["URL"])
       }
       TCPSocketAdapter.fireEvent(self, "close")
     }
+
     static fireErrorEvent(self, name, type) {
       const { onerror } = self
       if (onerror) {
         onerror({ type: "error", name, message: type })
       }
     }
+
     static fireEvent(self, type) {
       const event = { type }
       switch (type) {
@@ -705,12 +769,14 @@ Cu.importGlobalProperties(["URL"])
         }
       }
     }
+
     static fireDataEvent(self, buffer) {
       const { ondata } = self
       if (ondata) {
         ondata({ type: "data", data: buffer })
       }
     }
+
     static close(self, waitForUnsentData /*:boolean*/) {
       if (self.readyState === "closed" || self.readyState === "closing") {
         return undefined
@@ -733,6 +799,7 @@ Cu.importGlobalProperties(["URL"])
         }
       }
     }
+
     static send(self, stream, byteLength) {
       debug && console.log(`TCPSocketAdapter.send ${stream.available()}`)
       self.bufferedAmount += byteLength
@@ -750,6 +817,7 @@ Cu.importGlobalProperties(["URL"])
 
       return !isBufferFull
     }
+
     static ensureCopying(self) {
       const { socketOutputStream, asyncCopierActive } = self
 
@@ -797,6 +865,7 @@ Cu.importGlobalProperties(["URL"])
 
       copier.asyncCopy(self.copyObserver, null)
     }
+
     static notifyCopyComplete(self, status) {
       debug && console.log(`TCPSocketAdapter.notifyCopyComplete ${status}`)
       self.asyncCopierActive = false
@@ -845,6 +914,7 @@ Cu.importGlobalProperties(["URL"])
         TCPSocketAdapter.fireEvent(self, "close")
       }
     }
+
     static activateTLS(self) {
       const { securityInfo } = self.transport
       const socketControl = securityInfo.QueryInterface(Ci.nsISSLSocketControl)
@@ -879,6 +949,7 @@ Cu.importGlobalProperties(["URL"])
         return TCPSocketAdapter.maybeReportErrorAndCloseIfOpen(this, status)
       }
     }
+
     onInputStreamReady(asyncStream /*:nsIAsyncInputStream*/) /*:void*/ {
       // Only used for detecting if the connection was refused.
       try {
@@ -910,14 +981,19 @@ Cu.importGlobalProperties(["URL"])
       stream.setData(buffer, byteOffset, byteLength)
       return TCPSocketAdapter.send(this, stream, byteLength)
     }
+
     suspend() {}
+
     resume() {}
+
     close() {
       TCPSocketAdapter.close(this, true)
     }
+
     closeImmediately() {
       TCPSocketAdapter.close(this, false)
     }
+
     upgradeToSecure() {
       if (this.readyState !== "open") {
         return IOError.throw(Cr.NS_ERROR_FAILURE)
