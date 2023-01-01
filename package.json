@@ -23,8 +23,8 @@
     "bip39": "^3.0.2",
     "cross-env": "^6.0.3",
     "ethereumjs-wallet": "^0.6.3",
-    "js-keccak-tiny": "^0.4.0",
-    "js-secp256k1": "^0.2.0",
+    "js-keccak-tiny": "^0.4.2",
+    "js-secp256k1": "^0.2.3",
     "web-ext": "^3.2.0"
   },
   "devDependencies": {
